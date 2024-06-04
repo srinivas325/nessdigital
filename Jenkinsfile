@@ -6,14 +6,6 @@ pipeline {
         }
     }
 
-    environment {
-        AWS_ACCESS_KEY_ID = credentials('${AWS_ACCESS_KEY_ID}')
-        AWS_SECRET_ACCESS_KEY = credentials('${AWS_SECRET_ACCESS_KEY}')
-        AWS_REGION = "${AWS_REGION}"
-        S3_BUCKET = "${S3_BUCKET}"
-        DYNAMODB_TABLE = "${DYNAMODB_TABLE}"
-    }
-
     parameters {
         string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
         string(name: 'S3_BUCKET', defaultValue: 'your-terraform-state-bucket', description: 'S3 bucket for Terraform state')
@@ -21,6 +13,14 @@ pipeline {
         credentials(name: 'AWS_ACCESS_KEY_ID', description: 'AWS Access Key ID')
         credentials(name: 'AWS_SECRET_ACCESS_KEY', description: 'AWS Secret Access Key')
         string(name: 'bucket_name', defaultValue: 'my-example-bucket', description: 'Name of the S3 bucket to create')
+    }
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_REGION = "${params.AWS_REGION}"
+        S3_BUCKET = "${params.S3_BUCKET}"
+        DYNAMODB_TABLE = "${params.DYNAMODB_TABLE}"
     }
 
     stages {
@@ -34,13 +34,13 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    sh '''
+                    sh """
                     terraform init \
                     -backend-config="bucket=${S3_BUCKET}" \
                     -backend-config="key=path/to/your/terraform.tfstate" \
                     -backend-config="region=${AWS_REGION}" \
                     -backend-config="dynamodb_table=${DYNAMODB_TABLE}"
-                    '''
+                    """
                 }
             }
         }
@@ -55,14 +55,14 @@ pipeline {
             }
         }
 
-    //     stage('Terraform Apply') {
-    //         steps {
-    //             script {
-    //                 sh 'terraform apply -auto-approve tfplan'
-    //             }
-    //         }
-    //     }
-    // }
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    sh 'terraform apply tfplan'
+                }
+            }
+        }
+    }
 
     post {
         always {
@@ -70,5 +70,4 @@ pipeline {
             cleanWs()
         }
     }
-}
 }
