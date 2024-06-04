@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent node
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
@@ -17,7 +17,12 @@ pipeline {
         stage('Checkout') {
             agent any
             steps {
-                git branch: 'main', url: 'https://github.com/srinivas325/tf-state-s3.git'
+                script {
+                    // Wrapping in a node block to ensure proper context
+                    node {
+                        git branch: 'main', url: 'https://github.com/srinivas325/tf-state-s3.git'
+                    }
+                }
             }
         }
 
@@ -30,12 +35,15 @@ pipeline {
             }
             steps {
                 script {
-                    sh """
-                    terraform init -backend-config="bucket=${params.BUCKET_NAME}" \
-                                   -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" \
-                                   -backend-config="region=${params.AWS_REGION}" \
-                                   -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
-                    """
+                    // Wrapping in a node block to ensure proper context
+                    node {
+                        sh """
+                        terraform init -backend-config="bucket=${params.BUCKET_NAME}" \
+                                       -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" \
+                                       -backend-config="region=${params.AWS_REGION}" \
+                                       -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
+                        """
+                    }
                 }
             }
         }
@@ -49,13 +57,16 @@ pipeline {
             }
             steps {
                 script {
-                    sh """
-                    terraform plan -var 'aws_region=${params.AWS_REGION}' \
-                                   -var 'bucket_name=${params.BUCKET_NAME}' \
-                                   -var 'environment=${params.ENVIRONMENT}' \
-                                   -var 'lock_table_name=${params.LOCK_TABLE_NAME}' \
-                                   -out=tfplan
-                    """
+                    // Wrapping in a node block to ensure proper context
+                    node {
+                        sh """
+                        terraform plan -var 'aws_region=${params.AWS_REGION}' \
+                                       -var 'bucket_name=${params.BUCKET_NAME}' \
+                                       -var 'environment=${params.ENVIRONMENT}' \
+                                       -var 'lock_table_name=${params.LOCK_TABLE_NAME}' \
+                                       -out=tfplan
+                        """
+                    }
                 }
             }
         }
@@ -69,7 +80,10 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'terraform apply -auto-approve tfplan'
+                    // Wrapping in a node block to ensure proper context
+                    node {
+                        sh 'terraform apply -auto-approve tfplan'
+                    }
                 }
             }
         }
@@ -77,7 +91,10 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            // Wrapping in a node block to ensure proper context
+            node {
+                cleanWs()
+            }
         }
     }
 }
