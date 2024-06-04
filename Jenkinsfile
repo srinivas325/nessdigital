@@ -1,34 +1,28 @@
 pipeline {
-    agent any
-    // {
-    //     docker {
-    //         image 'hashicorp/terraform:latest'
-    //         args '-u root:root'  // Run as root to avoid permission issues
-    //     }
-    // }
-
-    parameters {
-        string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
-        string(name: 'S3_BUCKET', defaultValue: 'your-terraform-state-bucket', description: 'S3 bucket for Terraform state')
-        string(name: 'DYNAMODB_TABLE', defaultValue: 'your-terraform-lock-table', description: 'DynamoDB table for Terraform state locking')
-        credentials(name: 'AWS_ACCESS_KEY_ID', description: 'AWS Access Key ID')
-        credentials(name: 'AWS_SECRET_ACCESS_KEY', description: 'AWS Secret Access Key')
-        string(name: 'bucket_name', defaultValue: 'my-example-bucket', description: 'Name of the S3 bucket to create')
+    agent {
+        docker {
+            image 'hashicorp/terraform:latest'
+            args '-u root:root'  // Run as root to avoid permission issues
+        }
     }
 
     environment {
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        AWS_REGION = "${params.AWS_REGION}"
-        S3_BUCKET = "${params.S3_BUCKET}"
-        DYNAMODB_TABLE = "${params.DYNAMODB_TABLE}"
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_REGION            = 'us-west-2'
+    }
+
+    parameters {
+        string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
+        string(name: 'BUCKET_NAME', defaultValue: 'my-terraform-state-bucket', description: 'S3 bucket for Terraform state')
+        string(name: 'ENVIRONMENT', defaultValue: 'development', description: 'Environment for the resources')
+        string(name: 'LOCK_TABLE_NAME', defaultValue: 'terraform-state-lock', description: 'DynamoDB table for Terraform state locking')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the repository containing the Terraform code
-                git url: 'https://github.com/srinivas325/tf-state-s3.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/your-repo/terraform-config.git'
             }
         }
 
@@ -36,11 +30,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    terraform init \
-                    -backend-config="bucket=${S3_BUCKET}" \
-                    -backend-config="key=path/to/your/terraform.tfstate" \
-                    -backend-config="region=${AWS_REGION}" \
-                    -backend-config="dynamodb_table=${DYNAMODB_TABLE}"
+                    terraform init -backend-config="bucket=${params.BUCKET_NAME}" -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" -backend-config="region=${params.AWS_REGION}" -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
                     """
                 }
             }
@@ -50,7 +40,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    terraform plan -var 'bucket_name=${params.bucket_name}' -out=tfplan
+                    terraform plan -var 'aws_region=${params.AWS_REGION}' -var 'bucket_name=${params.BUCKET_NAME}' -var 'environment=${params.ENVIRONMENT}' -var 'lock_table_name=${params.LOCK_TABLE_NAME}' -out=tfplan
                     """
                 }
             }
@@ -59,7 +49,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
-                    sh 'terraform apply tfplan'
+                    sh 'echo terraform apply'
                 }
             }
         }
@@ -67,7 +57,6 @@ pipeline {
 
     post {
         always {
-            // Clean up the workspace
             cleanWs()
         }
     }
