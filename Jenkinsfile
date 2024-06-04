@@ -1,16 +1,9 @@
 pipeline {
-    agent any
-    // {
-    //     docker {
-    //         image 'hashicorp/terraform:latest'
-    //         args '-u root:root'  // Run as root to avoid permission issues
-    //     }
-    // }
+    agent none
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        AWS_REGION            = 'us-west-2'
     }
 
     parameters {
@@ -22,35 +15,61 @@ pipeline {
 
     stages {
         stage('Checkout') {
+            agent any
             steps {
                 git branch: 'main', url: 'https://github.com/srinivas325/tf-state-s3.git'
             }
         }
 
         stage('Terraform Init') {
+            agent {
+                docker {
+                    image 'hashicorp/terraform:latest'
+                    args '-u root:root'
+                }
+            }
             steps {
                 script {
                     sh """
-                    terraform init -backend-config="bucket=${params.BUCKET_NAME}" -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" -backend-config="region=${params.AWS_REGION}" -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
+                    terraform init -backend-config="bucket=${params.BUCKET_NAME}" \
+                                   -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" \
+                                   -backend-config="region=${params.AWS_REGION}" \
+                                   -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
                     """
                 }
             }
         }
 
         stage('Terraform Plan') {
+            agent {
+                docker {
+                    image 'hashicorp/terraform:latest'
+                    args '-u root:root'
+                }
+            }
             steps {
                 script {
                     sh """
-                    terraform plan -var 'aws_region=${params.AWS_REGION}' -var 'bucket_name=${params.BUCKET_NAME}' -var 'environment=${params.ENVIRONMENT}' -var 'lock_table_name=${params.LOCK_TABLE_NAME}' -out=tfplan
+                    terraform plan -var 'aws_region=${params.AWS_REGION}' \
+                                   -var 'bucket_name=${params.BUCKET_NAME}' \
+                                   -var 'environment=${params.ENVIRONMENT}' \
+                                   -var 'lock_table_name=${params.LOCK_TABLE_NAME}' \
+                                   -out=tfplan
                     """
                 }
             }
         }
 
         stage('Terraform Apply') {
+            agent {
+                docker {
+                    image 'hashicorp/terraform:latest'
+                    args '-u root:root'
+                }
+            }
             steps {
                 script {
-                    sh 'echo terraform apply'
+                    sh 'terraform apply -auto-approve tfplan'
                 }
             }
         }
