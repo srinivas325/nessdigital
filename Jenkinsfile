@@ -1,10 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'hashicorp/terraform:latest'
-            args '-u root:root'  // Run as root to avoid permission issues
-        }
-    }
+    agent any
+    // {
+    //     docker {
+    //         image 'hashicorp/terraform:latest'
+    //         args '-u root:root'  // Run as root to avoid permission issues
+    //     }
+    // }
 
     parameters {
         string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
