@@ -1,10 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'hashicorp/terraform:latest'
-            args '-u root:root'  // Run as root to avoid permission issues
-        }
-    }
+    agent any
+    // {
+    //     docker {
+    //         image 'hashicorp/terraform:latest'
+    //         args '-u root:root'  // Run as root to avoid permission issues
+    //     }
+    // }
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
@@ -22,7 +23,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/terraform-config.git'
+                git branch: 'main', url: 'https://github.com/srinivas325/tf-state-s3.git'
             }
         }
 
