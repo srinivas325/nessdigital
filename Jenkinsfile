@@ -60,12 +60,20 @@ pipeline {
             }
         }
     }
-    stage('Terraform Apply Approval') {
+    stage('Approval') {
       steps {
         script {
           def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
         }
       }
+    }
+    stage('Terraform Apply') {
+            agent any
+            steps {
+                script {
+                    sh 'terraform apply -input=false myplan'
+            }
+        }
     }
     }
 }
