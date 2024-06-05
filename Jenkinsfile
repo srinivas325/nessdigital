@@ -44,12 +44,7 @@ pipeline {
             agent any
             steps {
                 script {
-                    sh """
-                    terraform init -no-color -backend-config="bucket=${params.BUCKET_NAME}" \
-                                   -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" \
-                                   -backend-config="region=${params.AWS_REGION}" \
-                                   -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
-                    """
+                    sh 'terraform init -no-color'
                               }
         }
     }
@@ -65,16 +60,10 @@ pipeline {
             agent any
             steps {
                 script {
-                    sh """
-                    terraform plan -no-color -backend-config="bucket=${params.BUCKET_NAME}" \
-                                   -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" \
-                                   -backend-config="region=${params.AWS_REGION}" \
-                                   -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
-                    """
-                              }
-            //     script {
-            //         sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "environment=${ENVIRONMENT}" '
-            // }
+
+                script {
+                    sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "environment=${ENVIRONMENT}" '
+            }
         }
     }
     stage('Approval') {
