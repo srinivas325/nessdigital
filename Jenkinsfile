@@ -50,7 +50,7 @@ pipeline {
 
 
                 script {
-                    sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "environment=${ENVIRONMENT}" '
+                    sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" -var "environment=${ENVIRONMENT}"'
             }
             }
     }
