@@ -39,6 +39,7 @@ pipeline {
             agent any
             steps {
                 script {
+                    sh 'rm -r .terraform*'
                     sh 'terraform init -no-color'
                               }
         }
