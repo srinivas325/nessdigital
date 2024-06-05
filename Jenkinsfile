@@ -56,7 +56,7 @@ pipeline {
             agent any
             steps {
                 script {
-                    sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "envvironment=${ENVIRONMENT}" '
+                    sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "environment=${ENVIRONMENT}" '
             }
         }
     }
