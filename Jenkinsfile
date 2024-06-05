@@ -1,5 +1,8 @@
 pipeline {
-    agent node
+    agent any
+    parameters {
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'What action should Terraform take?')
+    }
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
@@ -15,7 +18,6 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            agent any
             steps {
                 script {
                     // Wrapping in a node block to ensure proper context
@@ -27,12 +29,12 @@ pipeline {
         }
 
         stage('Terraform Init') {
-            agent {
+        
                 docker {
                     image 'hashicorp/terraform:latest'
                     args '-u root:root'
                 }
-            }
+    
             steps {
                 script {
                     // Wrapping in a node block to ensure proper context
@@ -49,12 +51,12 @@ pipeline {
         }
 
         stage('Terraform Plan') {
-            agent {
+            
                 docker {
                     image 'hashicorp/terraform:latest'
                     args '-u root:root'
                 }
-            }
+        
             steps {
                 script {
                     // Wrapping in a node block to ensure proper context
@@ -72,12 +74,12 @@ pipeline {
         }
 
         stage('Terraform Apply') {
-            agent {
+            
                 docker {
                     image 'hashicorp/terraform:latest'
                     args '-u root:root'
                 }
-            }
+
             steps {
                 script {
                     // Wrapping in a node block to ensure proper context
