@@ -20,12 +20,28 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/srinivas325/tf-state-s3.git'
             }
         }
-        stage('Terraform init') {
+        stage('terraform init') {
             agent any
             steps {
                 script {
                     sh 'terraform init'
                     sh 'terraform validate'
+            }
+        }
+    }
+        stage('terraform validate') {
+            agent any
+            steps {
+                script {
+                    sh 'terraform validate'
+            }
+        }
+    }
+        stage('terraform plan') {
+            agent any
+            steps {
+                script {
+                    sh 'terraform plan'
             }
         }
     }
