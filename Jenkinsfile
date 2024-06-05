@@ -1,11 +1,6 @@
 pipeline {
     agent none
 
-    // environment {
-    //     AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-    //     AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-    // }
-
     parameters {
         string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
         string(name: 'BUCKET_NAME', defaultValue: 'my-terraform-state-bucket', description: 'S3 bucket for Terraform state')
@@ -20,6 +15,17 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/srinivas325/nessdigital.git'
             }
         }
+
+    stages {
+        stage('AWS') {
+            agent any
+            steps {
+             withAWS(credentials: 'AWS-Creds', region: 'us-west-2') {
+                    sh 'aws sts get-caller-identity'              
+                }
+            }
+        }
+        
         stage('terraform init') {
             agent any
             steps {
