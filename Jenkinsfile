@@ -20,7 +20,9 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/srinivas325/nessdigital.git'
             }
         }
-            steps {
+         stage('Configure AWS Credentials') {
+            agent any   
+        steps {
                 withCredentials([[
                 $class: 'AmazonWebServicesCredentialsBinding',
                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
@@ -36,7 +38,7 @@ pipeline {
                     }
                 }
             }
-      
+         }
         
         stage('validate') {
             steps {
@@ -48,7 +50,7 @@ pipeline {
                 expression { params.action == 'plan' || params.action == 'apply' }
             }
             steps {
-                sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" --var-file=environments/${ENVIRONMENT}.vars'
+                sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}"'
             }
         }
         stage('approval') {
@@ -85,7 +87,7 @@ pipeline {
                 expression { params.action == 'preview-destroy' || params.action == 'destroy'}
             }
             steps {
-                sh 'terraform plan -no-color -destroy -out=tfplan -var "aws_region=${AWS_REGION}" --var-file=environments/${ENVIRONMENT}.vars'
+                sh 'terraform plan -no-color -destroy -out=tfplan -var "aws_region=${AWS_REGION}" '
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
         }
@@ -99,7 +101,7 @@ pipeline {
                     input message: "Delete the stack?",
                     parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
                 }
-                sh 'terraform destroy -no-color -force -var "aws_region=${AWS_REGION}" --var-file=environments/${ENVIRONMENT}.vars'
+                sh 'terraform destroy -no-color -force -var "aws_region=${AWS_REGION}" '
             }
         }
     }
