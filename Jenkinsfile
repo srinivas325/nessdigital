@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
     parameters {
         string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
         string(name: 'BUCKET_NAME', defaultValue: 'my-terraform-state-bucket', description: 'S3 bucket for Terraform state')
@@ -17,6 +17,7 @@ pipeline {
 
 
         stage('configure aws credentials') {
+            agent any
             steps {
                 withCredentials([[
                 $class: 'AmazonWebServicesCredentialsBinding',
