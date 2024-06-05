@@ -1,10 +1,10 @@
 pipeline {
     agent none
 
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-    }
+    // environment {
+    //     AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+    //     AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+    // }
 
     parameters {
         string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region to use')
