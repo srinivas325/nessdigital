@@ -34,7 +34,7 @@ pipeline {
                         sh 'aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID'
                         sh 'aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
                         sh 'aws sts get-caller-identity'
-                        sh 'terraform init -no-color -backend-config="bucket=${ASI}-${ENVIRONMENT}-tfstate" -backend-config="key=${ASI}-${ENVIRONMENT}/terraform.tfstate" -backend-config="region=${AWS_REGION}"'
+                        sh 'terraform init -no-color'
                     }
                 }
             }
