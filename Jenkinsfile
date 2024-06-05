@@ -16,7 +16,7 @@ pipeline {
         }
 
 
-        stage('configure aws credentials') {
+        stage('Configure AWS Credentials') {
             agent any
             steps {
                 withCredentials([[
@@ -35,7 +35,7 @@ pipeline {
             }
         }
     
-        stage('terraform init') {
+        stage('Terraform Init') {
             agent any
             steps {
                 script {
@@ -44,7 +44,7 @@ pipeline {
             }
         }
     }
-        stage('terraform validate') {
+        stage('Terraform Validate') {
             agent any
             steps {
                 script {
@@ -52,13 +52,20 @@ pipeline {
             }
         }
     }
-        stage('terraform plan') {
+        stage('Terraform Plan') {
             agent any
             steps {
                 script {
-                    sh 'terraform plan'
+                    sh 'terraform plan -out myplan'
             }
         }
+    }
+    stage('Terraform Apply Approval') {
+      steps {
+        script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+        }
+      }
     }
     }
 }
