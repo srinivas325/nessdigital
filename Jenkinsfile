@@ -6,12 +6,7 @@ pipeline {
         string(name: 'ENVIRONMENT', defaultValue: 'development', description: 'Environment for the resources')
         string(name: 'LOCK_TABLE_NAME', defaultValue: 'terraform-state-lock', description: 'DynamoDB table for Terraform state locking')
     }
-   environment {
-        TF_VAR_aws_region = "${params.AWS_REGION}"
-        TF_VAR_bucket_name = "${params.BUCKET_NAME}"
-        TF_VAR_environment = "${params.ENVIRONMENT}"
-        TF_VAR_lock_table_name = "${params.LOCK_TABLE_NAME}"
-    }
+
     stages {
         stage('Checkout') {
             agent any
