@@ -15,6 +15,7 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/srinivas325/nessdigital.git'
             }
         }
+    }
 
     stages {
         stage('AWS') {
@@ -25,7 +26,7 @@ pipeline {
                 }
             }
         }
-        
+    }
         stage('terraform init') {
             agent any
             steps {
@@ -52,5 +53,4 @@ pipeline {
         }
     }
 }
-}
-}
+
