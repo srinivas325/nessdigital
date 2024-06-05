@@ -43,14 +43,7 @@ pipeline {
                               }
         }
     }
-        stage('Terraform Validate') {
-            agent any
-            steps {
-                script {
-                    sh 'terraform validate'
-            }
-        }
-    }
+
         stage('Terraform Plan') {
             agent any
             steps {
