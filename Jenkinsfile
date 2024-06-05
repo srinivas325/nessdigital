@@ -34,12 +34,20 @@ pipeline {
                 }
             }
         }
-    
+    stage('Cleanup') {
+            steps {
+                script {
+                    sh """
+                    rm -rf .terraform
+                    rm -f terraform.tfstate.lock.info
+                    """
+                }
+            }
+        }
         stage('Terraform Init') {
             agent any
             steps {
                 script {
-                    sh 'rm -r .terraform*'
                     sh 'terraform init -no-color'
                               }
         }
