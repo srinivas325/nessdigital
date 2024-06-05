@@ -25,13 +25,14 @@ pipeline {
                 script {
                     // Wrapping in a node block to ensure proper context
                     node {
-                        sh """
-                        docker run --rm -v $(pwd):/workspace -w /workspace hashicorp/terraform:latest init -backend-config="bucket=${params.BUCKET_NAME}" \
-                                       -backend-config="key=${params.ENVIRONMENT}/terraform.tfstate" \
-                                       -backend-config="region=${params.AWS_REGION}" \
-                                       -backend-config="dynamodb_table=${params.LOCK_TABLE_NAME}"
-                        """
-                    }
+sh """
+docker run --rm -v \$(pwd):/workspace -w /workspace hashicorp/terraform:latest plan -var 'aws_region=\${params.AWS_REGION}' \
+                               -var 'bucket_name=\${params.BUCKET_NAME}' \
+                               -var 'environment=\${params.ENVIRONMENT}' \
+                               -var 'lock_table_name=\${params.LOCK_TABLE_NAME}' \
+                               -out=tfplan
+"""
+
                 }
             }
         }
