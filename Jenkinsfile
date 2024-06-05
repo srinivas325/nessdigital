@@ -47,8 +47,6 @@ pipeline {
         stage('Terraform Plan') {
             agent any
             steps {
-
-
                 script {
                     sh 'terraform plan -no-color -input=false -out=tfplan'
             }
@@ -69,10 +67,10 @@ pipeline {
             }
         }
     }
-    }
     post {
         always {
             cleanWs()
         }
     }
+}
 }
