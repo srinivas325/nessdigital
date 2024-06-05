@@ -16,10 +16,20 @@ pipeline {
         }
 
 
-stage('AWS credentials') {
+        stage('configure aws credentials') {
             steps {
-                withAWS(credentials: 'AWS-Creds', region: 'us-west-2') {
-                    sh 'aws sts get-caller-identity'
+                withCredentials([[
+                $class: 'AmazonWebServicesCredentialsBinding',
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                credentialsId: 'AWS-Creds']]) 
+                {
+                    script 
+                    {
+                        sh 'aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID'
+                        sh 'aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
+                        sh 'aws sts get-caller-identity'
+                    }
                 }
             }
         }
