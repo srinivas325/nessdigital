@@ -59,12 +59,12 @@ pipeline {
         stage('Terraform Plan') {
             agent any
             steps {
-                script {
+
 
                 script {
                     sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "environment=${ENVIRONMENT}" '
             }
-        }
+            }
     }
     stage('Approval') {
       steps {
@@ -82,5 +82,3 @@ pipeline {
         }
     }
     }
-}
-}
