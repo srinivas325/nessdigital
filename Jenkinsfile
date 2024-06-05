@@ -17,10 +17,11 @@ pipeline {
 
 
         stage('AWS') {
-            agent any
             steps {
-             withAWS(credentials: 'AWS-Creds', region: 'us-west-2') {
-                    sh 'aws sts get-caller-identity'              
+                // Use the withCredentials block to access AWS credentials securely
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS-Creds', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) 
+                {
+                    sh 'aws sts get-caller-idenntity' // Example command using AWS CLI
                 }
             }
         }
