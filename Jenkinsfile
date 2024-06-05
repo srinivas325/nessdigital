@@ -56,7 +56,7 @@ pipeline {
             agent any
             steps {
                 script {
-                    sh "terraform plan -var 'AWS_REGION=${params.AWS_REGION}' -var 'ENVIRONMENT=${params.ENVIRONMENT}' -var 'BUCKET_NAME=${params.BUCKET_NAME}' -var 'LOCK_TABLE_NAME=${params.LOCK_TABLE_NAME}'-out myplan"
+                    sh 'terraform plan -no-color -input=false -out=tfplan -var "aws_region=${AWS_REGION}" var "envvironment=${ENVIRONMENT}" '
             }
         }
     }
