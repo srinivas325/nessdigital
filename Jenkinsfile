@@ -16,7 +16,6 @@ pipeline {
         }
     }
 
-    stages {
         stage('AWS') {
             agent any
             steps {
@@ -25,7 +24,7 @@ pipeline {
                 }
             }
         }
-    }
+    
         stage('terraform init') {
             agent any
             steps {
