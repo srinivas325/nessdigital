@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout') {
             agent any
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/terraform-config.git'
+                git branch: 'main', url: 'https://github.com/srinivas325/tf-state-s3.git'
             }
         }
     }
